@@ -39,15 +39,26 @@ def simulate(env, limestone_ratio, ggbs_ratio, weight_ton):
     total_cost = interpolated_result['Total_Cost(KRW)'] * weight_ton
 
     # 결과 출력
-    print(f"\n--- Simulation Result ---")
-    print(f"Limestone Ratio: {limestone_ratio}")
-    print(f"GGBS Ratio: {ggbs_ratio}")
-    print(f"Weight: {weight_ton} ton")
-    print(f"CO2 Emission (Limestone): {co2_emission_limestone:.2f} kg")
-    print(f"CO2 Emission (GGBS): {co2_emission_ggbs:.2f} kg")
-    print(f"Total CO2 Emission: {total_co2_emission:.2f} kg")
-    print(f"Energy Consumption: {energy_consumption:.2f} kWh")
-    print(f"Total Cost (KRW): {total_cost:.2f}")
+    # print(f"\n--- Simulation Result ---")
+    # print(f"Limestone Ratio: {limestone_ratio}")
+    # print(f"GGBS Ratio: {ggbs_ratio}")
+    # print(f"Weight: {weight_ton} ton")
+    # print(f"CO2 Emission (Limestone): {co2_emission_limestone:.2f} kg")
+    # print(f"CO2 Emission (GGBS): {co2_emission_ggbs:.2f} kg")
+    # print(f"Total CO2 Emission: {total_co2_emission:.2f} kg")
+    # print(f"Energy Consumption: {energy_consumption:.2f} kWh")
+    # print(f"Total Cost (KRW): {total_cost:.2f}")
+
+    total_data = {
+        "limestone_ratio": {limestone_ratio},
+        "ggbs_ratio": {ggbs_ratio},
+        "co2_emission_limestone": {co2_emission_limestone},
+        "co2_emission_ggbs": {co2_emission_ggbs},
+        "energy_consumption_kwh": {energy_consumption},
+        "total_cost": {total_cost}
+    }
+
+    return total_data
 
 # SimPy 환경 설정
 env = simpy.Environment()
