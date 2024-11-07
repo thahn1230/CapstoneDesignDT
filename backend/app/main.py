@@ -26,4 +26,4 @@ async def home(request: Request):
     domain = request.headers.get("host")
     return {"message": f"Hello from {domain}"}
 
-handler = Mangum(app)
+# handler = Mangum(app)

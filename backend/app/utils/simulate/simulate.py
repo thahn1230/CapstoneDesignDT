@@ -21,9 +21,9 @@ def interpolate_data(limestone_ratio):
 # SimPy 시뮬레이션 함수 (generator로 변경)
 def simulate(env, limestone_ratio, ggbs_ratio, weight_ton):
     # Limestone과 GGBS의 비율의 합이 1이 아니면 종료
-    if limestone_ratio < 0 or limestone_ratio > 1 :
-        print("비율을 확인하세요")
-        return
+    # if limestone_ratio < 0 or limestone_ratio > 1 :
+    #     print("비율을 확인하세요")
+    #     return
     
     # 시뮬레이션을 위한 최소 시간 대기 (SimPy 요구사항)
     yield env.timeout(0)

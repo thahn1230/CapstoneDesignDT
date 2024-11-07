@@ -19,6 +19,7 @@ async def update_simulation_data(request: SimulationRequest):
     # Unreal Engine에서 시뮬레이션 데이터를 처리하는 부분
     try:
         # 여기에 SimPy 연산 로직이 들어가야 하는것 같음
+        # weight_ton이 뭐지...? ==> 나중에 물어봐야 할듯
         simpy_data = simulate(request.limestone_ratio, request.ggbs_ratio)
         updated_data = {
             "limestone_ratio": simpy_data.limestone_ratio,
