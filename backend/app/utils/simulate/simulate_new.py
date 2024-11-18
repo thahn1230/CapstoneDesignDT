@@ -6,13 +6,16 @@ from sklearn.ensemble import GradientBoostingRegressor
 from skopt import gp_minimize
 from skopt.space import Real
 import matplotlib.pyplot as plt
+import os
 
 # 변수 정의 (필요한 값을 미리 설정해야 함)
 limestone_price_per_ton = 500  # Limestone 가격 (예: KRW/ton)
 ggbs_price_per_ton = 1000      # GGBS 가격 (예: KRW/ton)
 energy_price_per_kwh = 150     # 에너지 비용 (예: KRW/kWh)
-model = joblib.load('/content/drive/MyDrive/model_new2.joblib')
 
+current_dir = os.path.dirname(__file__)
+model_path = os.path.join(current_dir, "model_new2.joblib")
+model = joblib.load(model_path)
 # 보간 함수 (샘플 데이터로 작성, 실제 데이터는 제공되어야 함)
 def interpolate_data(limestone_ratio):
     # 보간된 데이터 예시 (실제 데이터로 대체 필요)
