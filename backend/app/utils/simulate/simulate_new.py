@@ -7,6 +7,7 @@ from skopt import gp_minimize
 from skopt.space import Real
 import matplotlib.pyplot as plt
 import os
+import joblib
 
 # 변수 정의 (필요한 값을 미리 설정해야 함)
 limestone_price_per_ton = 500  # Limestone 가격 (예: KRW/ton)
@@ -16,13 +17,17 @@ energy_price_per_kwh = 150     # 에너지 비용 (예: KRW/kWh)
 current_dir = os.path.dirname(__file__)
 model_path = os.path.join(current_dir, "model_new2.joblib")
 model = joblib.load(model_path)
-# 보간 함수 (샘플 데이터로 작성, 실제 데이터는 제공되어야 함)
+data_path = os.path.join(current_dir,"1ton_total_simulation.csv")
+data_df = pd.read_csv(data_path)
+
 def interpolate_data(limestone_ratio):
-    # 보간된 데이터 예시 (실제 데이터로 대체 필요)
-    return {
-        'Total_CO2_Emission(kg)': 800 - 300 * limestone_ratio,
-        'Energy_Consumption(kWh)': 200 - 100 * limestone_ratio
-    }
+    # Limestone 비율에 따른 보간을 수행
+    limestone_keys = data_df['Limestone_Ratio']
+    # 각 열에 대해 보간 수행
+    interpolated_values = {}
+    for column in data_df.columns[2:]:
+        y = data_df[column]
+        interpolated_values[column] = np.interp(limestone_ratio, limestone_keys, y)
 
 # 시뮬레이션 함수
 def simulate(env, limestone_ratio, ggbs_ratio, weight_ton):
