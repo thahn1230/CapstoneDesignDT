@@ -11,6 +11,8 @@ class SimulationRequest(ResponseModel):
     total_co2_emission: float       # 총 CO2 배출량 (kg)
     energy_consumption_kwh: float   # 총 에너지 소비량 (kWh)
     total_cost: float               # 총 전기 요금 (KRW)
+    user_weight: float              # 사용자가 입력한 시멘트 기준 (1~100톤)
+    compressive_strength: float     # 압축 강도
 
 class SimulationParamsRequest(ResponseModel):
     simulation_id: str                                          # 시뮬레이션 고유 ID

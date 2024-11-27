@@ -1,10 +1,12 @@
+import simpy
+
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import JSONResponse
 
 from app.schemas.request import SimulationRequest, SimulationParamsRequest
 from app.schemas.response import SimulationResponse, SimulationResponseData
 
-from app.utils.simulate import simulate
+from app.utils.simulate import simulate, env
 
 router = APIRouter()
 
@@ -19,16 +21,22 @@ async def update_simulation_data(request: SimulationRequest):
     # Unreal Engine에서 시뮬레이션 데이터를 처리하는 부분
     try:
         # 여기에 SimPy 연산 로직이 들어가야 하는것 같음
-        # weight_ton이 뭐지...? ==> 나중에 물어봐야 할듯
-        simpy_data = simulate(request.limestone_ratio, request.ggbs_ratio)
+        # SimPy의 generator 호출
+        sim_process = simulate(env, request.limestone_ratio, request.ggbs_ratio, request.user_weight)
+        env.process(sim_process)  # SimPy 환경에 프로세스 추가
+        env.run(until=sim_process)  # 해당 프로세스 실행 완료까지 대기
+
+        # SimPy 시뮬레이션 결과 가져오기
+        simpy_result = sim_process.value
+
         updated_data = {
-            "limestone_ratio": simpy_data.limestone_ratio,
-            "ggbs_ratio": simpy_data.ggbs_ratio,
-            "co2_emission_limestone": simpy_data.co2_emission_limestone,
-            "co2_emission_ggbs": simpy_data.co2_emission_ggbs,
-            "total_co2_emission": simpy_data.total_co2_emission,
-            "energy_consumption_kwh": simpy_data.energy_consumption_kwh,
-            "total_cost": simpy_data.total_cost
+            "limestone_ratio": request.limestone_ratio,
+            "ggbs_ratio": request.ggbs_ratio,
+            "co2_emission_limestone": simpy_result["co2_emission_limestone"],
+            "co2_emission_ggbs": simpy_result["co2_emission_ggbs"],
+            "total_co2_emission": simpy_result["total_co2_emission"],
+            "energy_consumption_kwh": simpy_result["energy_consumption_kwh"],
+            "total_cost": simpy_result["total_cost"],
         }
 
         return SimulationResponse(
@@ -59,10 +67,31 @@ async def update_simulation_params(request: SimulationParamsRequest):
     try:
         # 실제 처리 로직을 이곳에 구현 (예: Unreal Engine에서 받은 데이터를 SimPy로 전달 후 결과 처리)
         # Simpy 연산 진행 필요(외부 함수로 빼놓은 다음, import 해오는 식으로 작업 진행해야 할듯)
+
+        # SimPy 환경 생성 및 시뮬레이션 실행
+        simpy_env = simpy.Environment()  # 요청마다 독립적인 SimPy 환경 생성
+        sim_process = simulate(simpy_env, request.user_input_limestone_ratio, request.user_input_ggbs_ratio, request.user_weight)
+        simpy_env.process(sim_process)  # SimPy 환경에 프로세스 추가
+        simpy_env.run(until=sim_process)  # 해당 프로세스 실행 완료까지 대기
+
+        # SimPy 결과 가져오기
+        simpy_result = sim_process.value
+
+        updated_data = {
+            "limestone_ratio": request.user_input_limestone_ratio,
+            "ggbs_ratio": request.user_input_ggbs_ratio,
+            "co2_emission_limestone": simpy_result["co2_emission_limestone"],
+            "co2_emission_ggbs": simpy_result["co2_emission_ggbs"],
+            "total_co2_emission": simpy_result["total_co2_emission"],
+            "energy_consumption_kwh": simpy_result["energy_consumption_kwh"],
+            "total_cost": simpy_result["total_cost"],
+        }
+
         # 처리 성공 시 응답
         return SimulationResponse(
             status="success",
-            message="Simulation updated successfully."
+            message="Simulation updated successfully.",
+            updated_simulation_data=SimulationResponseData(**updated_data)
         )
     
     except Exception:

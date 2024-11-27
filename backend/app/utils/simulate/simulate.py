@@ -19,6 +19,7 @@ def interpolate_data(limestone_ratio):
     return interpolated_values
 
 # SimPy 시뮬레이션 함수 (generator로 변경)
+# weight_ton : csv 1톤 기준, 시멘트 몇톤? DT Layer....
 def simulate(env, limestone_ratio, ggbs_ratio, weight_ton):
     # Limestone과 GGBS의 비율의 합이 1이 아니면 종료
     # if limestone_ratio < 0 or limestone_ratio > 1 :
