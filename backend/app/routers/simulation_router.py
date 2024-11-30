@@ -6,12 +6,13 @@ from fastapi.responses import JSONResponse
 from app.schemas.request import SimulationRequest, SimulationParamsRequest
 from app.schemas.response import SimulationResponse, SimulationResponseData
 
-from app.utils.simulate import simulate, env
+from app.utils.simulate.simulate_utils import simulate
+from app.utils.simulate.simulate1128 import simulate
 
 router = APIRouter()
 
 @router.post("/update_simulation_data", response_model=SimulationResponse)
-async def update_simulation_data(request: SimulationRequest):
+async def update_simulation_data(request: SimulationParamsRequest):
     if request.limestone_ratio < 0 or request.limestone_ratio > 1:
         raise HTTPException(status_code=400, detail="limestone_ratio must be between 0 and 1.")
 
@@ -22,12 +23,19 @@ async def update_simulation_data(request: SimulationRequest):
     try:
         # 여기에 SimPy 연산 로직이 들어가야 하는것 같음
         # SimPy의 generator 호출
-        sim_process = simulate(env, request.limestone_ratio, request.ggbs_ratio, request.user_weight)
-        env.process(sim_process)  # SimPy 환경에 프로세스 추가
-        env.run(until=sim_process)  # 해당 프로세스 실행 완료까지 대기
+        # SimPy 환경 생성
+        simpy_env = simpy.Environment()
+        sim_process = simulate(
+            simpy_env,
+            request.user_input_limestone_ratio,
+            request.user_input_ggbs_ratio,
+            request.user_weight
+        )
+        result = simpy_env.process(sim_process)
+        simpy_env.run()  # 실행 완료까지 대기
 
-        # SimPy 시뮬레이션 결과 가져오기
-        simpy_result = sim_process.value
+        # SimPy 결과 가져오기
+        simpy_result = result.value
 
         updated_data = {
             "limestone_ratio": request.limestone_ratio,
@@ -68,14 +76,19 @@ async def update_simulation_params(request: SimulationParamsRequest):
         # 실제 처리 로직을 이곳에 구현 (예: Unreal Engine에서 받은 데이터를 SimPy로 전달 후 결과 처리)
         # Simpy 연산 진행 필요(외부 함수로 빼놓은 다음, import 해오는 식으로 작업 진행해야 할듯)
 
-        # SimPy 환경 생성 및 시뮬레이션 실행
-        simpy_env = simpy.Environment()  # 요청마다 독립적인 SimPy 환경 생성
-        sim_process = simulate(simpy_env, request.user_input_limestone_ratio, request.user_input_ggbs_ratio, request.user_weight)
-        simpy_env.process(sim_process)  # SimPy 환경에 프로세스 추가
-        simpy_env.run(until=sim_process)  # 해당 프로세스 실행 완료까지 대기
+        # SimPy 환경 생성
+        simpy_env = simpy.Environment()
+        sim_process = simulate(
+            simpy_env,
+            request.user_input_limestone_ratio,
+            request.user_input_ggbs_ratio,
+            request.user_weight
+        )
+        result = simpy_env.process(sim_process)
+        simpy_env.run()  # 실행 완료까지 대기
 
         # SimPy 결과 가져오기
-        simpy_result = sim_process.value
+        simpy_result = result.value
 
         updated_data = {
             "limestone_ratio": request.user_input_limestone_ratio,
@@ -94,6 +107,6 @@ async def update_simulation_params(request: SimulationParamsRequest):
             updated_simulation_data=SimulationResponseData(**updated_data)
         )
     
-    except Exception:
+    except Exception as e:
         # 처리 실패 시 응답
-        raise HTTPException(status_code=500, detail="Simulation update failed due to an internal error.")
+        raise HTTPException(status_code=500, detail=f"Simulation update failed: {str(e)}")

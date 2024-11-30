@@ -7,14 +7,29 @@ from skopt import gp_minimize
 from skopt.space import Real
 import matplotlib.pyplot as plt
 import joblib
+import os
 
 # 가격정의
 limestone_price_per_ton = 8168
 ggbs_price_per_ton = 22160
 energy_price_per_kwh = 120
 
-model = joblib.load('/content/drive/MyDrive/strength_predict_Model.joblib')
-data_df = pd.read_csv('/content/drive/MyDrive/1ton_total_simulation.csv')
+# model = joblib.load('/content/drive/MyDrive/strength_predict_Model.joblib')
+# data_df = pd.read_csv('/content/drive/MyDrive/1ton_total_simulation.csv')
+
+
+# 현재 파일의 디렉토리를 기준으로 경로 설정
+base_dir = os.path.dirname(__file__)
+
+# 모델과 데이터 파일 경로 설정
+model_path = os.path.join(base_dir, "strength_predict_Model.joblib")
+csv_path = os.path.join(base_dir, "1ton_total_simulation.csv")
+
+# 모델 로드
+model = joblib.load(model_path)
+
+# 데이터 로드
+data_df = pd.read_csv(csv_path)
 
 def interpolate_data(limestone_ratio):
     # Limestone 비율에 따른 보간을 수행
@@ -71,17 +86,17 @@ def simulate(env, limestone_ratio, ggbs_ratio):
 
 env = simpy.Environment()
 
-while True:
-    # 사용자 입력 받기1
+# while True:
+#     # 사용자 입력 받기1
 
-    user_ggbs_ratio = float(input("ggbs 비율을 입력하세요 (0.0 ~ 1.0): "))
-    user_limestone_ratio = 1 - user_ggbs_ratio
+#     user_ggbs_ratio = float(input("ggbs 비율을 입력하세요 (0.0 ~ 1.0): "))
+#     user_limestone_ratio = 1 - user_ggbs_ratio
 
-    # 시뮬레이션 실행
-    env.process(simulate(env, user_limestone_ratio, user_ggbs_ratio))
-    env.run()
+#     # 시뮬레이션 실행
+#     env.process(simulate(env, user_limestone_ratio, user_ggbs_ratio))
+#     env.run()
 
-    # 시뮬레이션 반복 여부 확인
-    repeat = input("\n다시 시뮬레이션을 하시겠습니까? (y/n): ").strip().lower()
-    if repeat != 'y':
-        break
+#     # 시뮬레이션 반복 여부 확인
+#     repeat = input("\n다시 시뮬레이션을 하시겠습니까? (y/n): ").strip().lower()
+#     if repeat != 'y':
+#         break

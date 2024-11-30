@@ -20,3 +20,4 @@ class SimulationParamsRequest(ResponseModel):
     user_input_ggbs_ratio: float                                # 고로슬래그 비율 (0-1)
     environmental_factors_temperature: Optional[float] = None   # 온도
     environmental_factors_pressure: Optional[float] = None      # 압력
+    user_weight: float                                          
