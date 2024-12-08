@@ -1,23 +1,23 @@
 from app.schemas.base_schema import ResponseModel
 from typing import Optional
+from pydantic import Field
 
 # Request data model 정의
-class SimulationRequest(ResponseModel):
-    simulation_id: str              # 시뮬레이션 고유 ID
-    limestone_ratio: float          # 석회석 비율 (0~1)
-    ggbs_ratio: float               # 고로슬래스 비율 (0~1)
-    co2_emission_limestone: float   # 석회석으로 인한 CO2 배출량(kg)
-    co2_emission_ggbs: float        # 고로슬래그로 인한 CO2 배출량 (kg)
-    total_co2_emission: float       # 총 CO2 배출량 (kg)
-    energy_consumption_kwh: float   # 총 에너지 소비량 (kWh)
-    total_cost: float               # 총 전기 요금 (KRW)
-    user_weight: float              # 사용자가 입력한 시멘트 기준 (1~100톤)
-    compressive_strength: float     # 압축 강도
 
-class SimulationParamsRequest(ResponseModel):
-    simulation_id: str                                          # 시뮬레이션 고유 ID
-    user_input_limestone_ratio: float                           # 석회석 비율 (0-1)
-    user_input_ggbs_ratio: float                                # 고로슬래그 비율 (0-1)
-    environmental_factors_temperature: Optional[float] = None   # 온도
-    environmental_factors_pressure: Optional[float] = None      # 압력
-    user_weight: float                                          
+class UserInput(ResponseModel):
+    limestone_ratio: float = Field(..., ge=0.0, le=1.0, description="사용자 입력 석회 비율 (0~1)")
+    ggbs_ratio: float = Field(..., ge=0.0, le=1.0, description="사용자 입력 고로슬래그 비율 (0~1)")
+
+
+class EnvironmentalFactors(ResponseModel):
+    temperature: Optional[float] = Field(None, description="환경 요소 - 온도 (섭씨)", example=25.0)
+    pressure: Optional[float] = Field(None, description="환경 요소 - 압력", example=101.3)
+
+
+class SimulationRequest(ResponseModel):
+    simulation_id: str = Field(..., description="시뮬레이션 고유 ID")
+    user_input: UserInput
+    environmental_factors: Optional[EnvironmentalFactors] = None
+    user_weight: float = Field(..., ge=1.0, le=100.0, description="사용자 입력한 시멘트 기준 (1~100톤)")
+    optimized_Select_1: int = Field(..., ge=0, le=3, description="사용자 최적화 요소 1 (0~3)")
+    optimized_Select_2: int = Field(..., ge=0, le=3, description="사용자 최적화 요소 2 (0~3)")

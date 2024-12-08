@@ -46,9 +46,9 @@ interpolated_result = interpolate_data(0.5)
 optimal_co2_emission = interpolated_result['Total_CO2_Emission(kg)'] * 1000
 
 def simulate(env, limestone_ratio, ggbs_ratio):
-    if limestone_ratio < 0 or limestone_ratio > 1:
-        print("비율을 확인하세요")
-        return
+    # if limestone_ratio < 0 or limestone_ratio > 1:
+    #     print("비율을 확인하세요")
+    #     return
 
     yield env.timeout(0)  # SimPy에서 시간 흐름 처리
 
@@ -73,6 +73,12 @@ def simulate(env, limestone_ratio, ggbs_ratio):
     reduction_percentage = ((total_co2_emission - optimal_co2_emission) / total_co2_emission) * 100
 
 
+    # result = {
+    #     "limestone_ratio": limestone_ratio,
+    #     "ggbs_ratio": ggbs_ratio,
+    #     "co2_emission_limestone": 
+    # }
+
     # 결과 출력
     print(f"\n--- Simulation Result ---")
     print(f"Limestone Ratio: {limestone_ratio:.2f}")
@@ -84,7 +90,7 @@ def simulate(env, limestone_ratio, ggbs_ratio):
     print(f"Material Cost: {material_cost:.2f} KRW")
     print(f"Energy Cost: {energy_cost:.2f} KRW")
 
-env = simpy.Environment()
+
 
 # while True:
 #     # 사용자 입력 받기1
